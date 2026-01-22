@@ -1,0 +1,13 @@
+{
+  "name": "Grok-voice-agent-example-main",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "dependencies": {
+    "@voximplant/voxengine-ci": "^30.0.0"
+  }
+}

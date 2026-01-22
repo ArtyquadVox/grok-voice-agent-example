@@ -1,0 +1,20 @@
+[
+  {
+    "ruleName":"inboundCalls",
+    "scenarios":[
+      "grok_config",
+      "grok_integration",
+      "inbound_handler"
+    ],
+    "rulePattern":".*"
+  },
+  {
+    "ruleName":"outboundCalls",
+    "scenarios":[
+      "grok_config",
+      "grok_integration",
+      "outbound_handler"
+    ],
+    "rulePattern":"outbound"
+  }
+]
