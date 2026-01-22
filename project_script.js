@@ -3,10 +3,32 @@ const path = require('path');
 const { execSync } = require('child_process');
 require('dotenv').config();
 
+// Normalize env values to avoid inline comment leakage from .env
+const cleanEnvValue = (value) =>
+    typeof value === 'string' ? value.replace(/\s+#.*$/, '').trim() : value;
+
+const VOX_CI_CREDENTIALS = cleanEnvValue(process.env.VOX_CI_CREDENTIALS);
+const VOX_CI_ROOT_PATH = cleanEnvValue(process.env.VOX_CI_ROOT_PATH);
+const VOX_ACCOUNT_NAME = cleanEnvValue(process.env.VOX_ACCOUNT_NAME);
+const VOX_NEW_APP_NAME = cleanEnvValue(process.env.VOX_NEW_APP_NAME);
+
+const setCleanEnv = (key, value) => {
+    if (typeof value === 'undefined') {
+        delete process.env[key];
+        return;
+    }
+    process.env[key] = value;
+};
+
+setCleanEnv('VOX_CI_CREDENTIALS', VOX_CI_CREDENTIALS);
+setCleanEnv('VOX_CI_ROOT_PATH', VOX_CI_ROOT_PATH);
+setCleanEnv('VOX_ACCOUNT_NAME', VOX_ACCOUNT_NAME);
+setCleanEnv('VOX_NEW_APP_NAME', VOX_NEW_APP_NAME);
+
 // ---------------------------
 // Check required environment variables
 // ---------------------------
-if (!process.env.VOX_CI_CREDENTIALS || !process.env.VOX_CI_ROOT_PATH) {
+if (!VOX_CI_CREDENTIALS || !VOX_CI_ROOT_PATH) {
     console.error('Please set VOX_CI_CREDENTIALS and VOX_CI_ROOT_PATH in your .env file');
     process.exit(1);
 }
@@ -15,7 +37,7 @@ if (!process.env.VOX_CI_CREDENTIALS || !process.env.VOX_CI_ROOT_PATH) {
 // Define project paths
 // ---------------------------
 const projectRoot = __dirname;
-const ciRootDir = process.env.VOX_CI_ROOT_PATH; // Root folder for Voximplant CI source files
+const ciRootDir = VOX_CI_ROOT_PATH; // Root folder for Voximplant CI source files
 const sourceApplicationDir = path.join(projectRoot, 'application'); // Folder with app configs
 const sourceScenariosDir = path.join(projectRoot, 'scenarios'); // Folder with scenario scripts
 const sourceVoiceAIDir = path.join(projectRoot, 'modules'); // Folder with ai script
@@ -56,8 +78,8 @@ try {
 // Copy application config files
 // ---------------------------
 const ciApplicationsDir = path.join(ciRootDir, 'applications');
-const ciAppName = process.env.VOX_NEW_APP_NAME; // Application name
-const accountName = process.env.VOX_ACCOUNT_NAME;   // Account name
+const ciAppName = VOX_NEW_APP_NAME; // Application name
+const accountName = VOX_ACCOUNT_NAME;   // Account name
 const ciApplicationDir = path.join(ciApplicationsDir, `${ciAppName}.${accountName}.voximplant.com`);
 
 // Create application folder if it doesn't exist
