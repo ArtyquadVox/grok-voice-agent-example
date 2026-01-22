@@ -2,7 +2,8 @@
   {
     "ruleName":"inboundCalls",
     "scenarios":[
-      "grok_config",
+      "credentials",
+      "agent_config",
       "grok_integration",
       "inbound_handler"
     ],
@@ -11,7 +12,8 @@
   {
     "ruleName":"outboundCalls",
     "scenarios":[
-      "grok_config",
+      "credentials",
+      "agent_config",
       "grok_integration",
       "outbound_handler"
     ],

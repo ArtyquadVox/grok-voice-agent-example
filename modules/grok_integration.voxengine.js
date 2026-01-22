@@ -29,7 +29,7 @@ async function createGrokVoiceAgent(call) {
                 session: {
                     voice: "Ara",
                     turn_detection: { type: "server_vad" },
-                    instructions: GROK_INSTRUCTIONS,
+                    instructions: SYSTEM_INSTRUCTIONS,
                     tools: [
                         {
                             type: "function",

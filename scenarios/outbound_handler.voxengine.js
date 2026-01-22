@@ -1,5 +1,3 @@
-const voxNum = 'YOUR_RENTED_PHONE_NUMBER';
-
 VoxEngine.addEventListener(AppEvents.Started, async ({ e }) => {
     let voiceAgentAPIClient = undefined;
 
