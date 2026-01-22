@@ -11,7 +11,7 @@ async function createGrokVoiceAgent(call) {
     };
 
     const voiceAgentAPIClientParameters = {
-        xAIApiKey: GROK_API_KEY,
+        xAIApiKey: X_API_KEY,
         onWebSocketClose,
     };
 
