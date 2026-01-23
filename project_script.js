@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const VoximplantApiClient = require('@voximplant/apiclient-nodejs').default;
 require('dotenv').config();
 
 // Normalize env values to avoid inline comment leakage from .env
@@ -11,6 +12,7 @@ const VOX_CI_CREDENTIALS = cleanEnvValue(process.env.VOX_CI_CREDENTIALS);
 const VOX_CI_ROOT_PATH = cleanEnvValue(process.env.VOX_CI_ROOT_PATH);
 const VOX_ACCOUNT_NAME = cleanEnvValue(process.env.VOX_ACCOUNT_NAME);
 const VOX_NEW_APP_NAME = cleanEnvValue(process.env.VOX_NEW_APP_NAME);
+const VOX_PHONE_NUMBER = cleanEnvValue(process.env.VOX_PHONE_NUMBER);
 
 const setCleanEnv = (key, value) => {
     if (typeof value === 'undefined') {
@@ -24,6 +26,7 @@ setCleanEnv('VOX_CI_CREDENTIALS', VOX_CI_CREDENTIALS);
 setCleanEnv('VOX_CI_ROOT_PATH', VOX_CI_ROOT_PATH);
 setCleanEnv('VOX_ACCOUNT_NAME', VOX_ACCOUNT_NAME);
 setCleanEnv('VOX_NEW_APP_NAME', VOX_NEW_APP_NAME);
+setCleanEnv('VOX_PHONE_NUMBER', VOX_PHONE_NUMBER);
 
 // ---------------------------
 // Check required environment variables
@@ -130,4 +133,27 @@ try {
     process.exit(1);
 }
 
-console.log('Deployment completed successfully!');
+// ---------------------------
+// Attach phone number to application
+// ---------------------------
+
+console.log('Creating Voximplant Api Client');
+const client = new VoximplantApiClient({
+    pathToCredentials: VOX_CI_CREDENTIALS
+});
+client.onReady = async () => {
+    console.log('Binding Phone Number to Application');
+    try {
+        const result = await client.PhoneNumbers.bindPhoneNumberToApplication({
+            phoneNumber: VOX_PHONE_NUMBER,
+            applicationName: ciAppName
+        });
+
+        console.log('Phone number bound successfully!');
+        console.log(result);
+        console.log('Deployment completed successfully!');
+    } catch (err) {
+        console.error('Binding failed:', err);
+        process.exit(1);
+    }
+};
