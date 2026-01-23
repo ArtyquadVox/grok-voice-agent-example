@@ -95,10 +95,12 @@ Then edit `.env`:
 
 ```env
 # Voximplant CI Credentials
-VOX_CI_CREDENTIALS=PATH_TO_CREDENTIALS_FILE   # Path to your Voximplant credentials JSON
-VOX_CI_ROOT_PATH=./voxengine_ci_source_files  # Local directory for CI source files
-VOX_ACCOUNT_NAME=YOUR_ACCOUNT_NAME            # Your Voximplant account name
-VOX_NEW_APP_NAME=YOUR_NEW_APP_NAME            # Name for the new Voximplant Application
+VOX_CI_CREDENTIALS=/path/to/voximplant-credentials.json   # Path to Voximplant service account JSON
+VOX_CI_ROOT_PATH=./voxengine_ci_source_files              # Local directory for CI source files
+VOX_ACCOUNT_NAME=your_account_name                        # e.g. "mycompany"
+VOX_NEW_APP_NAME=your_new_app_name                        # e.g. "grok-voice-agent"
+VOX_PHONE_NUMBER=your_rented_phone_number                 # Rented phone number on Voximplant Platform
+SCRIPT_CUSTOM_DATA={"clientNum":"+12345678901"}           # Set the phone number you want to make ou
 ```
 
 Notes
@@ -107,6 +109,8 @@ Notes
 - `VOX_CI_ROOT_PATH` — local folder where the CI source files will be prepared before deployment.
 - `VOX_ACCOUNT_NAME` — your Voximplant account name.
 - `VOX_NEW_APP_NAME` — the name you want to give to the new Voximplant Application.
+- `VOX_PHONE_NUMBER` — your rented Voximplant number used as the outbound caller ID
+- `SCRIPT_CUSTOM_DATA` — JSON string containing data to pass to the scenario (e.g., client phone number).
 
 > 💡 Tip: VOX_CI_CREDENTIALS should point to the JSON file you downloaded from Voximplant with your API key and account information (read more [how to get it](https://voximplant.com/docs/guides/management-api/authorization#service-accounts))
 
@@ -181,10 +185,10 @@ This script will:
 - **Initialize the Voximplant CI project**, creating the necessary structure for deployment.
 - **Copy all scenarios, modules, and configuration files** into the CI project folder.
 - **Upload the Application, Rules, and Scenarios** to your Voximplant account.
+- **Bind rented phone number** to the uploaded Application
 
 After running the script:
-- Link the rented number to your Application in Voximplant.
-- Ensure the number is associated with the `inboundCalls` rule.
+- Ensure the number is associated with two created rules.
    
 Now your application will be **fully deployed and ready for testing**.
 
@@ -208,6 +212,7 @@ grok-voice-agent-example/
 │   └── rules.config.json                 # Routing rules configuration
 │
 ├── project_script.js                     # Local CI deployment script for Voximplant
+├── outbound_call_script.js               # Script using Voximplant API Client to start outbound calls
 ├── package.json
 ├── .env
 ├── .env.example
@@ -226,6 +231,7 @@ grok-voice-agent-example/
 - `application/application.config.json` — defines your Voximplant Application name
 - `application/rules.config.json` — contains inbound and outbound routing rules
 - `project_script.js` — local CI script to automate deployment of Application, Rules, and Scenarios
+- `outbound_call_script.js` — local script using Voximplant API Client to automate outbound call initiation
 - `.env` — environment variables such as Voximplant credentials and app name
 
 
@@ -265,35 +271,28 @@ Before testing, make sure that:
 
 ### Testing Outgoing Calls (Outbound)
 
-Outgoing calls are initiated via the **Voximplant HTTP API** using the `startScenarios` method.
+**Steps:**
 
-The `outbound_handler` scenario:
+1. **Verify setup in Voximplant control panel:**
+    - Ensure your **rented phone number** is linked to your application.
+    - Make sure the **`outboundCalls` rule** is active.
 
-- Accepts the client number via `customData`.
-- Makes an outgoing call from the rented Voximplant number.
-- Connects the Grok Voice Agent after the call is answered.
-
-#### Example API call:
-
+2. **Run the outbound script:**
 ```bash
-curl -X POST "https://api.voximplant.com/platform_api/StartScenarios" \
-  -d "account_name=YOUR_ACCOUNT_NAME" \
-  -d "application_id=YOUR_APP_ID" \
-  -d "api_key=YOUR_API_KEY" \
-  -d "rule_id=YOUR_OUTBOUND_RULE_ID" \
-  -d 'script_custom_data={"clientNum":"+12345678901"}'
+node outbound_call_script.js
 ```
 
-**Expected behavior:**
+3. **Expected behavior:**
+   - The script **automatically fetches the `ruleId`** for the outbound rule.
+   - `scriptCustomData` (e.g., client phone number) is passed to the scenario.
+   - The call is placed from your **rented Voximplant number** to the client’s number.
+   - A **Grok Voice Agent** is created and attached to the call.
+   - Audio is transmitted in **real time** between the caller and Grok.
+   - The dialogue continues until the call ends or the LLM triggers `hangup_call`.
 
-- Voximplant launches the `outbound_handler` scenario.
-- The scenario:
-    - Reads the client number from `customData`.
-    - Makes an outgoing call using the rented number.
-    - Creates a Grok Voice Agent after the call connects.
-- A real-time conversation with the LLM begins.
-- Ending the call correctly closes the Grok session.
-
+4. **Verify logs and results:**
+   - Check **Call History** in the Voximplant control panel.
+   - Review scenario logs via `Logger.write` for step-by-step execution.
 ---
 
 ### Verification
