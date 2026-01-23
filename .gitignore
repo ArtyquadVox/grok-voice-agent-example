@@ -1,0 +1,4 @@
+node_modules
+.env
+/modules/credentials.voxengine.js
+voxengine_ci_source_files

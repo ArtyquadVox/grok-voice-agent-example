@@ -11,7 +11,7 @@ async function createGrokVoiceAgent(call) {
     };
 
     const voiceAgentAPIClientParameters = {
-        xAIApiKey: GROK_API_KEY,
+        xAIApiKey: X_API_KEY,
         onWebSocketClose,
     };
 
@@ -29,7 +29,7 @@ async function createGrokVoiceAgent(call) {
                 session: {
                     voice: "Ara",
                     turn_detection: { type: "server_vad" },
-                    instructions: GROK_INSTRUCTIONS,
+                    instructions: SYSTEM_INSTRUCTIONS,
                     tools: [
                         {
                             type: "function",
